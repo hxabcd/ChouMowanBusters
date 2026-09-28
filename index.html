@@ -267,6 +267,41 @@
       background: var(--primary-press)
     }
 
+    /* 镜像源：主卡片仍指向 GitHub，这里给备用下载入口 */
+    .mirrors {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 5px;
+      margin: -2px 0 8px 50px;
+      font-size: 12px;
+      color: var(--neutral-40)
+    }
+
+    .mirrors .mlabel {
+      color: var(--neutral-50)
+    }
+
+    .mirrors a {
+      display: inline-block;
+      color: var(--neutral-30);
+      border: 2px solid var(--neutral-100);
+      background: var(--neutral-70);
+      padding: 1px 7px
+    }
+
+    .mirrors a:hover {
+      color: var(--white);
+      border-color: var(--primary);
+      background: var(--neutral-60)
+    }
+
+    @media (max-width:600px) {
+      .mirrors {
+        margin-left: 0
+      }
+    }
+
     :focus-visible {
       outline: 2px solid var(--white);
       outline-offset: 2px
@@ -963,6 +998,7 @@
         </div>
         <div class="size" id="size-lite">—</div>
       </a>
+      <div class="mirrors" id="mir-lite" hidden></div>
 
       <a class="dl" id="dl-standard" href="https://github.com/hxabcd/ChouMowanBusters/releases/latest">
         <div class="ico"><img src="assets/icons/arrowDown_white.png" alt=""></div>
@@ -972,6 +1008,7 @@
         </div>
         <div class="size" id="size-standard">—</div>
       </a>
+      <div class="mirrors" id="mir-standard" hidden></div>
 
       <details>
         <summary>文件校验（SHA-256）</summary>
@@ -1065,6 +1102,21 @@
     const dlUrl = (tag, asset) =>
       `${RELEASES}/download/${encodeURIComponent(tag)}/${encodeURIComponent(asset)}`;
 
+    // ============================================================
+    // GitHub 加速镜像。GitHub 直链在部分网络下很慢，这几个是实测可用
+    // （返回 206、支持 Range）的公共反代，用法就是把原始 URL 拼在域名后面。
+    // 主卡片仍直连 GitHub（真源、无需信任第三方）；镜像只作备用入口。
+    // 想增删直接改这里，页面按顺序渲染。
+    // ============================================================
+    const MIRRORS = [
+      { name: "ghproxy.net", base: "https://ghproxy.net/" },
+      { name: "gh-proxy.com", base: "https://gh-proxy.com/" },
+      { name: "ghfast.top", base: "https://ghfast.top/" }
+    ];
+
+    // 把 GitHub 直链转成镜像链接；镜像都是「前缀 + 原始完整 URL」
+    const mirrorUrl = (base, url) => base + url;
+
     // GitHub 的 asset.digest 形如 "sha256:<hex>"，老资产可能为 null
     const digest = a =>
       a.digest && a.digest.startsWith("sha256:") ? a.digest.slice(7) : "";
@@ -1109,6 +1161,16 @@
       return out.join("");
     }
 
+    // 每个包下面渲染一行镜像入口：GitHub（直连）+ 各镜像
+    function renderMirrors(box, url) {
+      if (!MIRRORS.length) return box.hidden = true;
+      box.innerHTML = `<span class="mlabel">下载慢？换镜像：</span>` +
+        MIRRORS.map(m =>
+          `<a href="${esc(mirrorUrl(m.base, url))}" target="_blank" rel="noopener">${esc(m.name)}</a>`
+        ).join("");
+      box.hidden = false;
+    }
+
     // 正文里 "Minecraft: x" / "Fabric Loader: y" 这类行只喂徽章，不进更新日志
     const isMeta = line => /^(?:Minecraft|Fabric Loader)\s*[:：]/i.test(line.trim());
 
@@ -1135,13 +1197,17 @@
       for (const k of ["lite", "standard"]) {
         const p = packs[k];
         const card = $("dl-" + k);
+        const mir = $("mir-" + k);
         if (!p) {                                     // 这个包在当前 release 里没有，保持指向 Releases
           missing.push(k);
           mute(card);
+          mir.hidden = true;                          // 没有直链就没有可镜像的东西
           continue;
         }
-        card.href = dlUrl(rel.tag_name, p.asset);
+        const url = dlUrl(rel.tag_name, p.asset);
+        card.href = url;
         $("size-" + k).textContent = MB(p.size);
+        renderMirrors(mir, url);
       }
 
       const shown = Object.values(packs);
@@ -1197,7 +1263,10 @@
       console.warn("读不到 GitHub Release：", err);
       // 不知道最新版本号，就不显示可能过期的数字与直链，只留 Releases 入口
       const at = `<a href="${RELEASES}" target="_blank" rel="noopener">Releases 页面</a>`;
-      for (const k of ["lite", "standard"]) mute($("dl-" + k));
+      for (const k of ["lite", "standard"]) {
+        mute($("dl-" + k));
+        $("mir-" + k).hidden = true;   // 没有直链，镜像也无从拼起
+      }
       $("hashes").innerHTML = `<div>未能读取 GitHub Release（离线或 API 限流）。<br>` +
         `当前版本的校验值请到 ${at} 查看。</div>`;
       $("changelog").innerHTML = `<p>未能读取 GitHub Release（离线或 API 限流）。` +

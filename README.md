@@ -69,6 +69,31 @@ release 里只缺某一个包时，只有那个按钮降级，其余照常。
 | 03 · 服务器 | `07f4acdef99b.ofalias.net:56477`，带「复制地址」与「连通性测试」 | — |
 | 04 · 更新日志 | 取自 release 说明正文 | — |
 
+### 下载镜像
+
+每张下载卡片下方有一行镜像入口（主卡片本身仍直连 GitHub）。GitHub 直链在部分网络下很慢，
+镜像只是备用通道，**校验值不变** —— 实测完整下载后与直链 SHA-256 一致。
+
+| 镜像 | 地址前缀 | 实测 |
+|---|---|---|
+| ghproxy.net | `https://ghproxy.net/` | 206 / Range 支持 / 哈希一致 |
+| gh-proxy.com | `https://gh-proxy.com/` | 206 / Range 支持 / 哈希一致 |
+| ghfast.top | `https://ghfast.top/` | 206 / Range 支持 / 哈希一致 |
+
+用法就是把 GitHub 原始 URL 直接拼在前缀后面。想增删改 `index.html` 里的 `MIRRORS` 数组即可：
+
+```js
+const MIRRORS = [
+  { name: "ghproxy.net",  base: "https://ghproxy.net/" },
+  { name: "gh-proxy.com", base: "https://gh-proxy.com/" },
+  { name: "ghfast.top",   base: "https://ghfast.top/" }
+];
+```
+
+> 这些是**第三方公共反代**，可用性不由我们控制：挂了只会让那个链接 404，不影响直连与其他镜像。
+> 当初排除的候选：`ghproxy.cc`（TLS 证书校验失败）、`gh.llkk.cc`（连接超时）。
+> 读不到 release（拿不到直链）时镜像行整行隐藏。
+
 ### 服务器连通性测试
 
 - **在线**（绿灯）：MOTD、版本、玩家数、玩家名单，有就显示服务器图标（base64）
