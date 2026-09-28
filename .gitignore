@@ -1,0 +1,7 @@
+# 本地转存，不再使用
+# 整合包真源已改为 GitHub Release：https://github.com/hxabcd/ChouMowanBusters/releases
+# 这里只是切换前的旧包备份，不进仓库（129 MB，且页面已不引用）。
+dl/
+
+# 旧版页面备份
+index.html.*.bak

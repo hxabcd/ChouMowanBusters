@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>超魔丸Busters · 下载</title>
+  <!--
+  UI 参考 OreUI：https://github.com/Spectrollay-OreUI/OreUI （MIT，© 2020 Spectrollay）
+  本站无构建链，故不引入其 Vite 组件体系，而是沿用其设计令牌 / 组件视觉规范
+  （2px 边框、内浮雕高光、#1E1E1F 灰阶、Minecraft 字体），并用原生 HTML/CSS 实现。
+  字体与图标素材取自该仓库 src/assets，授权见 assets/README.md。
+-->
+  <style>
+    :root {
+      /* —— OreUI 语义令牌（摘自 components/design/colors/style.css）—— */
+      --neutral-100: #1E1E1F;
+      --neutral-90: #242425;
+      --neutral-80: #313233;
+      --neutral-70: #48494A;
+      --neutral-60: #58585A;
+      --neutral-50: #8C8D90;
+      --neutral-40: #B1B2B5;
+      --neutral-30: #D0D1D4;
+      --white: #FFFFFF;
+      --primary: #3C8527;
+      --primary-hover: #2A641C;
+      --primary-press: #1D4D13;
+      --primary-shadow: #1D4D13;
+      --secondary: #D0D1D4;
+      --secondary-hover: #B1B2B5;
+      --secondary-shadow: #58585A;
+      --informative: #2E6BE5;
+      --notice: #D3791F;
+      --danger: #CA3636;
+      --tint-green: #6CC349;
+      --tint-blue: #8CB3FF;
+      --tint-yellow: #FFE866;
+
+      /* 组件特异性映射（OreUI --box-border-*） */
+      --box-border-top: #5A5B5C;
+      --box-border-side: #333334;
+      --specular-tl: rgba(255, 255, 255, .6);
+      --specular-br: rgba(255, 255, 255, .4);
+      --w40: rgba(255, 255, 255, .4);
+      --w50: rgba(255, 255, 255, .5);
+      --w80: rgba(255, 255, 255, .8);
+      --w20: rgba(255, 255, 255, .2);
+      --w10: rgba(255, 255, 255, .1);
+
+      --font-title: 'Minecraft Ten', 'Cubic 11', sans-serif;
+      --font-head: 'Minecraft Seven', 'Cubic 11', sans-serif;
+      --font-body: 'Cubic 11', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+    }
+
+    /* —— OreUI 字体（Minecraft 系，无 CJK，故以 Cubic 11 兜中文）—— */
+    @font-face {
+      font-family: 'Minecraft Ten';
+      src: url("fonts/Minecraft-Ten.otf") format('opentype');
+      font-display: swap
+    }
+
+    @font-face {
+      font-family: 'Minecraft Seven';
+      src: url("fonts/Minecraft-Seven.otf") format('opentype');
+      font-display: swap
+    }
+
+    @font-face {
+      font-family: 'Cubic 11';
+      src: url("fonts/Cubic_11.woff2") format('woff2');
+      font-display: swap
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    [hidden] {
+      display: none !important
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--neutral-100);
+      color: var(--white);
+      font: 14px/1.6 var(--font-body);
+      -webkit-font-smoothing: none;
+      font-variant-numeric: tabular-nums;
+    }
+
+    ::selection {
+      background: rgba(108, 195, 73, .5)
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      box-shadow: inset 0 -2px 0 0 currentColor
+    }
+
+    a:hover {
+      color: var(--tint-green)
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px 72px;
+      min-width: 330px
+    }
+
+    /* —— OreUI 页头条（oreui-header）—— */
+    .ore-head {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--neutral-80);
+      border-bottom: 2px solid var(--neutral-100);
+      box-shadow: inset 0 -2px var(--neutral-70), inset 0 2px var(--box-border-top);
+      height: 56px;
+      margin: 0 -20px 0;
+    }
+
+    .ore-head h1 {
+      margin: 0;
+      font-family: var(--font-title);
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: .02em;
+      text-shadow: 2px 2px 0 rgba(0, 0, 0, .5);
+    }
+
+    /* —— 页面标题区（oreui-page-title-area）—— */
+    .ore-title {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      border-bottom: 2px solid var(--box-border-side);
+      padding: 22px 0 18px;
+    }
+
+    .ore-title .big {
+      font-family: var(--font-head);
+      font-size: 24px;
+      line-height: 1.4;
+      text-shadow: 2px 2px 0 rgba(0, 0, 0, .55);
+    }
+
+    .ore-title .small {
+      font-size: 13px;
+      color: var(--neutral-30);
+      margin-top: 6px
+    }
+
+    /* .ore-title .small::before {
+      content: "— ";
+      color: var(--neutral-50)
+    } */
+
+    /* —— 标签 / 徽章（OreUI .tag）—— */
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
+      margin-top: 14px
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--neutral-70);
+      color: var(--white);
+      border: 2px solid var(--neutral-100);
+      box-shadow: inset 2px 2px var(--w20), inset -2px -2px var(--w10);
+      padding: 2px 8px;
+      font-size: 12px;
+    }
+
+    .badge b {
+      font-weight: 400;
+      color: var(--tint-green)
+    }
+
+    /* —— 主体块（oreui-main-block-frame）—— */
+    .block {
+      border: 2px solid;
+      border-color: var(--box-border-top) var(--box-border-side) var(--box-border-side);
+      background: var(--neutral-80);
+      padding: 16px 18px;
+      margin-bottom: 12px;
+    }
+
+    section {
+      display: block;
+      margin-top: 22px
+    }
+
+    /* 区块标题（article_list_title）*/
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, .05);
+      border-left: 6px solid var(--white);
+      font-family: var(--font-head);
+      font-size: 17px;
+      font-weight: 400;
+      margin: 0 0 12px;
+      padding: 6px 0 6px 10px;
+    }
+
+    h2 .n {
+      color: var(--neutral-40);
+      font-size: 14px
+    }
+
+    /* —— 按钮（oreui-button status_normal / status_green）—— */
+    button {
+      font: 14px var(--font-body);
+      cursor: pointer;
+      border: 2px solid var(--neutral-100);
+      background: var(--secondary);
+      color: var(--neutral-100);
+      box-shadow: inset 0 -4px var(--secondary-shadow),
+        inset 3px 3px var(--specular-tl),
+        inset -3px -7px var(--specular-br);
+      padding: 8px 16px 12px;
+      transition: filter .1s linear;
+    }
+
+    button:hover {
+      background: var(--secondary-hover);
+      box-shadow: inset 0 -4px var(--secondary-shadow), inset 3px 3px var(--w80), inset -3px -7px var(--w50)
+    }
+
+    button:active {
+      padding-bottom: 10px;
+      box-shadow: inset 3px 3px var(--w80), inset -3px -3px var(--w50)
+    }
+
+    button.primary {
+      background: var(--primary);
+      color: var(--white);
+      border-color: var(--neutral-100);
+      box-shadow: inset 0 -4px var(--primary-shadow), inset 3px 3px var(--w20), inset -3px -7px var(--w10);
+    }
+
+    button.primary:hover {
+      background: var(--primary-hover);
+      box-shadow: inset 0 -4px var(--primary-shadow), inset 3px 3px var(--w40), inset -3px -7px var(--w40)
+    }
+
+    button.primary:active {
+      padding-bottom: 10px;
+      background: var(--primary-press)
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--white);
+      outline-offset: 2px
+    }
+
+    /* —— 地址框（OreUI text-field）—— */
+    .addr {
+      flex: 1;
+      min-width: 240px;
+      word-break: break-all;
+      background: var(--neutral-80);
+      border: 2px solid var(--neutral-100);
+      box-shadow: inset 0 4px var(--neutral-90);
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--white);
+    }
+
+    .addr::before {
+      content: "> ";
+      color: var(--neutral-50);
+      user-select: none
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px
+    }
+
+    /* —— 下载块（oreui-show-block + 扫光）—— */
+    .dl {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 2px solid var(--neutral-60);
+      background: var(--neutral-80);
+      padding: 10px 16px;
+      margin-bottom: 6px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .dl::before,
+    .dl::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -150%;
+      height: 100%;
+      transform: skewX(-45deg);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .dl::before {
+      width: 15px;
+      background: rgba(255, 255, 255, .55)
+    }
+
+    .dl::after {
+      width: 6px;
+      background: rgba(255, 255, 255, .45);
+      z-index: 1
+    }
+
+    .dl:hover::before {
+      animation: thickFlash .6s cubic-bezier(.4, 0, .2, 1)
+    }
+
+    .dl:hover::after {
+      animation: thinFlash .6s .01s cubic-bezier(.4, 0, .2, 1)
+    }
+
+    @keyframes thickFlash {
+      0% {
+        left: -150%
+      }
+
+      100% {
+        left: 150%
+      }
+    }
+
+    @keyframes thinFlash {
+      0% {
+        left: -150%
+      }
+
+      100% {
+        left: 150%
+      }
+    }
+
+    .dl:hover,
+    .dl:focus-visible {
+      border-color: #6D6D6E;
+      background: var(--neutral-70)
+    }
+
+    .dl .ico {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border: 2px solid var(--neutral-100);
+      background: var(--neutral-70);
+      box-shadow: inset 2px 2px var(--w20), inset -2px -2px var(--w10);
+    }
+
+    .dl .ico img {
+      height: 18px;
+      width: auto;
+      image-rendering: pixelated
+    }
+
+    .dl .meta {
+      flex: 1;
+      min-width: 0
+    }
+
+    .dl .name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-head);
+      font-size: 17px;
+    }
+
+    .dl .desc {
+      display: block;
+      color: var(--neutral-30);
+      font-size: 13px;
+      margin-top: 2px
+    }
+
+    .dl .size {
+      flex: none;
+      white-space: nowrap;
+      font-size: 12px;
+      color: var(--white);
+      border: 2px solid var(--neutral-100);
+      background: var(--neutral-70);
+      box-shadow: inset 2px 2px var(--w20), inset -2px -2px var(--w10);
+      padding: 3px 9px;
+    }
+
+    /* OreUI 图标非正方形（arrowDown 60×32、arrowRight 32×60），按高度定尺、宽度自适应 */
+    .dl .size img {
+      height: 14px;
+      width: auto;
+      image-rendering: pixelated;
+      vertical-align: -2px
+    }
+
+    /* 推荐项：绿色描边 */
+    .dl.feat {
+      border-color: var(--primary)
+    }
+
+    .dl.feat .ico {
+      background: var(--primary);
+      border-color: var(--primary-shadow)
+    }
+
+    /* 降级项 */
+    .dl.mute {
+      opacity: .85
+    }
+
+    .dl.mute .ico {
+      background: var(--neutral-80)
+    }
+
+    /* —— 服务器连通性面板 —— */
+    .srv {
+      margin-top: 12px;
+      border-top: 2px solid var(--neutral-70);
+      padding-top: 12px
+    }
+
+    .srv-state {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 13px;
+      color: var(--neutral-30)
+    }
+
+    .led {
+      flex: none;
+      width: 10px;
+      height: 10px;
+      border: 2px solid var(--neutral-100);
+      background: var(--neutral-50);
+    }
+
+    .led.on {
+      background: var(--tint-green);
+      box-shadow: 0 0 0 2px rgba(108, 195, 73, .25)
+    }
+
+    .led.off {
+      background: var(--danger)
+    }
+
+    .led.busy {
+      background: var(--tint-yellow);
+      animation: blink .8s steps(1) infinite
+    }
+
+    .led.unknown {
+      background: var(--neutral-50)
+    }
+
+    @keyframes blink {
+
+      0%,
+      50% {
+        opacity: 1
+      }
+
+      50.01%,
+      100% {
+        opacity: .35
+      }
+    }
+
+    .srv-icon {
+      flex: none;
+      width: 56px;
+      height: 56px;
+      image-rendering: pixelated;
+      border: 2px solid var(--neutral-100);
+      background: var(--neutral-70);
+    }
+
+    /* 状态行：图标 + MOTD + 版本/人数，玩家名单单独一行放下面 */
+    .srv-top {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start
+    }
+
+    .srv-body {
+      margin-top: 12px
+    }
+
+    .srv-info {
+      flex: 1;
+      min-width: 0
+    }
+
+    .srv-motd {
+      font-family: var(--font-head);
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--white);
+      word-break: break-word;
+    }
+
+    .srv-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px
+    }
+
+    .chip {
+      font-size: 12px;
+      color: var(--white);
+      border: 2px solid var(--neutral-100);
+      background: var(--neutral-70);
+      box-shadow: inset 2px 2px var(--w20), inset -2px -2px var(--w10);
+      padding: 1px 7px;
+    }
+
+    .chip b {
+      font-weight: 400;
+      color: var(--tint-green)
+    }
+
+    .srv-players {
+      font-size: 12px;
+      color: var(--neutral-30)
+    }
+
+    .srv-players .pl-label {
+      display: inline-block;
+      margin-right: 6px;
+      color: var(--neutral-40)
+    }
+
+    .srv-players .pl {
+      display: inline-block;
+      color: var(--white);
+      border: 2px solid var(--neutral-100);
+      background: var(--neutral-70);
+      box-shadow: inset 2px 2px var(--w20), inset -2px -2px var(--w10);
+      padding: 1px 7px;
+      margin: 6px 5px 0 0
+    }
+
+    @media (max-width:600px) {
+      .srv-top {
+        flex-wrap: wrap
+      }
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      font-size: 12px;
+      line-height: 1.5;
+      padding: 1px 5px;
+      color: var(--neutral-100);
+      vertical-align: 2px;
+    }
+
+    .tag.rec {
+      background: var(--tint-green)
+    }
+
+    .tag.ext {
+      background: var(--tint-blue)
+    }
+
+    .row-tight {
+      margin-top: 0
+    }
+
+    /* —— 列表 / 备注 —— */
+    ol {
+      padding-left: 26px;
+      margin: 0
+    }
+
+    ol li {
+      margin-bottom: 8px;
+      color: var(--neutral-30);
+      font-size: 13px
+    }
+
+    ol li:last-child {
+      margin-bottom: 0
+    }
+
+    ol li::marker {
+      color: var(--tint-green)
+    }
+
+    ol li b {
+      color: var(--white);
+      font-weight: 400
+    }
+
+    code {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--white);
+      background: var(--neutral-70);
+      border: 2px solid var(--neutral-100);
+      padding: 1px 5px;
+      user-select: all;
+      word-break: break-all;
+    }
+
+    .note {
+      color: var(--neutral-30);
+      font-size: 13px;
+      margin: 10px 0 0
+    }
+
+    .note a {
+      color: var(--tint-blue)
+    }
+
+    .note a:hover {
+      color: var(--white)
+    }
+
+    .old-note {
+      margin-top: 14px
+    }
+
+    .card-note {
+      margin: 0 0 14px
+    }
+
+    /* 提示条（OreUI article_note：蓝色左边条）*/
+    #net-note {
+      background: rgba(46, 107, 229, .1);
+      border-left: 6px solid var(--informative);
+      padding: 10px 12px;
+      margin: 12px 0 0;
+      font-size: 13px;
+      display: block;
+    }
+
+    /* 备用入口（弱化）*/
+    .backup {
+      color: var(--neutral-40);
+      font-size: 12px;
+      margin: 14px 0 0;
+      padding-top: 12px;
+      border-top: 2px solid var(--neutral-70);
+    }
+
+    .backup a {
+      color: var(--neutral-40)
+    }
+
+    .backup a:hover {
+      color: var(--tint-blue)
+    }
+
+    /* —— 更新日志（oreui article）—— */
+    .log {
+      font-size: 13px;
+      color: var(--neutral-30)
+    }
+
+    .log h3 {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 18px 0 8px;
+      font-family: var(--font-head);
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--white);
+    }
+
+    .log h3:first-child {
+      margin-top: 0
+    }
+
+    .log .ver {
+      color: var(--tint-green)
+    }
+
+    .log .ver::before {
+      content: "[";
+      color: var(--neutral-50)
+    }
+
+    .log .ver::after {
+      content: "]";
+      color: var(--neutral-50)
+    }
+
+    .log .date {
+      font-weight: 400;
+      color: var(--neutral-50);
+      font-size: 12px;
+      margin-left: auto
+    }
+
+    .log ul {
+      margin: 0;
+      padding-left: 20px
+    }
+
+    .log li {
+      margin-bottom: 5px
+    }
+
+    .log li::marker {
+      color: var(--neutral-50)
+    }
+
+    .log p {
+      margin: 0 0 9px
+    }
+
+    .log b {
+      color: var(--white);
+      font-weight: 400
+    }
+
+    /* —— 折叠（OreUI 风格：+ / −）—— */
+    details {
+      margin-top: 10px
+    }
+
+    summary {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 3px 0;
+      color: var(--neutral-30);
+      font-size: 13px;
+      user-select: none;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker {
+      display: none
+    }
+
+    summary::before {
+      content: "+";
+      flex: none;
+      width: 10px;
+      color: var(--tint-green);
+      font-family: var(--font-head)
+    }
+
+    details[open]>summary::before {
+      content: "−"
+    }
+
+    summary:hover {
+      color: var(--white)
+    }
+
+    .hash {
+      font-size: 12px;
+      color: var(--neutral-30);
+      word-break: break-all;
+      padding: 11px 0 0;
+      line-height: 1.7;
+    }
+
+    .hash>div {
+      margin-bottom: 9px
+    }
+
+    .hash>div:last-child {
+      margin-bottom: 0
+    }
+
+    .hash .fn {
+      display: block;
+      color: var(--white)
+    }
+
+    .hash .sum {
+      display: block;
+      color: var(--neutral-40)
+    }
+
+    .hash a {
+      color: var(--tint-blue)
+    }
+
+    /* —— 页脚（oreui-footer-display）—— */
+    footer {
+      margin-top: 44px;
+      padding: 18px 0 0;
+      text-align: center;
+      border-top: 2px solid var(--box-border-side);
+      color: var(--neutral-40);
+      font-size: 12px;
+    }
+
+    /* —— 复制提示（OreUI 轻提示）—— */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translate(-50%, 10px);
+      background: var(--primary);
+      color: var(--white);
+      border: 2px solid var(--neutral-100);
+      box-shadow: inset 0 -4px var(--primary-shadow), inset 2px 2px var(--w20), inset -2px -2px var(--w10);
+      padding: 8px 18px 12px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 50;
+      transition: opacity .18s, transform .18s;
+    }
+
+    .toast.on {
+      opacity: 1;
+      transform: translate(-50%, 0)
+    }
+
+    @media (max-width:600px) {
+      .wrap {
+        padding: 0 14px 60px
+      }
+
+      .ore-head {
+        margin: 0 -14px
+      }
+
+      .dl {
+        padding: 9px 12px;
+        gap: 11px
+      }
+
+      .dl .name {
+        font-size: 16px
+      }
+
+      .dl .desc {
+        font-size: 12px
+      }
+
+      .addr {
+        min-width: 0;
+        font-size: 13px
+      }
+
+      .ore-title .big {
+        font-size: 20px
+      }
+
+      h2 {
+        font-size: 16px
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      * {
+        transition: none !important;
+        animation: none !important
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="ore-head">
+      <h1>超魔丸Busters</h1>
+    </div>
+
+    <div class="ore-title">
+      <div class="big">下载 & 安装</div>
+      <div class="small">A Minecraft modpack for kingstar and his friends.</div>
+      <div class="badges">
+        <span class="badge">版本 <b id="v-version">—</b></span>
+        <span class="badge" id="b-mc" hidden>Minecraft <b>—</b></span>
+        <span class="badge" id="b-loader" hidden>Fabric Loader <b>—</b></span>
+        <span class="badge">更新于 <b id="v-date">—</b></span>
+      </div>
+    </div>
+
+    <section>
+      <h2><span class="n">00</span>怎么装</h2>
+      <div class="block">
+        <ol>
+          <li>没有启动器就先按下面 <b>「启动器」</b> 安装 <b>PCL</b>（解压到任意目录）</li>
+          <li>下载 <b>「整合包」</b></li>
+          <li>将整合包 <b>拖进 PCL 窗口</b> 开始安装</li>
+          <li>等待安装完成，启动游戏，选择 <b>「多人游戏」</b></li>
+          <li>列表中已有服务器，直接 <b>连接</b> 即可</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="n">01</span>启动器</h2>
+      <div class="block">
+        <p class="note card-note">已有启动器可跳过此步</p>
+
+        <a class="dl" href="https://ltcat.lanzouv.com/b0aj6gsid" target="_blank" rel="noopener">
+          <div class="ico"><img src="assets/icons/ExternalLink_white.png" alt=""></div>
+          <div class="meta">
+            <div class="name">PCL 最新正式版 <span class="tag ext">蓝奏云</span></div>
+            <div class="desc">下载最新的 <code>PCL 正式版 x.x.x.x.zip</code></div>
+          </div>
+        </a>
+
+        <div class="row">
+          <div class="addr" id="pwd">提取码：PCL2</div>
+          <button class="primary" onclick="copy('pwd')">复制提取码</button>
+        </div>
+
+        <p class="backup">
+          打不开？
+          <a href="https://afdian.com/p/0164034c016c11ebafcb52540025c377" target="_blank" rel="noopener">备用入口</a>
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="n">02</span>整合包</h2>
+
+      <a class="dl feat" id="dl-lite" href="https://github.com/hxabcd/ChouMowanBusters/releases/latest">
+        <div class="ico"><img src="assets/icons/arrowDown_white.png" alt=""></div>
+        <div class="meta">
+          <div class="name">Lite <span class="tag rec">推荐</span></div>
+          <div class="desc">仅含 Mod 清单，体积小。资源需联网下载</div>
+        </div>
+        <div class="size" id="size-lite">—</div>
+      </a>
+
+      <a class="dl" id="dl-standard" href="https://github.com/hxabcd/ChouMowanBusters/releases/latest">
+        <div class="ico"><img src="assets/icons/arrowDown_white.png" alt=""></div>
+        <div class="meta">
+          <div class="name">Standard</div>
+          <div class="desc">内置 Mod 资源，避免部分下载问题。游戏本体仍需联网下载</div>
+        </div>
+        <div class="size" id="size-standard">—</div>
+      </a>
+
+      <details>
+        <summary>文件校验（SHA-256）</summary>
+        <div class="hash" id="hashes">正在读取 GitHub Release…</div>
+      </details>
+      <p class="note" id="net-note" hidden></p>
+    </section>
+
+    <section>
+      <h2><span class="n">03</span>服务器</h2>
+      <div class="block">
+        <div class="row row-tight">
+          <div class="addr" id="addr">07f4acdef99b.ofalias.net:56477</div>
+          <button class="primary" onclick="copy('addr')">复制地址</button>
+          <button onclick="ping()">连通性测试</button>
+        </div>
+
+        <!-- 状态面板：内容全部由 ping() 填充 -->
+        <div class="srv" id="srv">
+          <div class="srv-state" id="srv-state">
+            <span class="led" id="srv-led"></span>
+            <span id="srv-text">点击「连通性测试」，查询服务器状态</span>
+          </div>
+          <div class="srv-body" id="srv-body" hidden>
+            <div class="srv-top">
+              <img class="srv-icon" id="srv-icon" alt="" hidden>
+              <div class="srv-info">
+                <div class="srv-motd" id="srv-motd"></div>
+                <div class="srv-meta" id="srv-meta"></div>
+              </div>
+            </div>
+            <div class="srv-players" id="srv-players" hidden></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="n">04</span>更新日志</h2>
+      <div class="block log">
+        <div id="changelog">正在读取 GitHub Release…</div>
+        <details id="old-wrap">
+          <summary>更早的版本</summary>
+          <div id="changelog-old"></div>
+          <p class="note old-note">以下为接入 GitHub Release 之前的手写记录，已冻结、不再更新。</p>
+          <h3>26.3.0</h3>
+          <ul>
+            <li>整体升级到 <b>Minecraft 26.3</b>，Fabric Loader 0.19.5</li>
+            <li>58 个 mod 全部升级到 26.3 版本</li>
+            <li>移除 10 个尚未适配 26.3 的 mod：Better Mount HUD、Cubes Without Borders、
+              Debugify、e4mc、Language Reload、MixinTrace Reborn、No Chat Reports、
+              Paginated Advancements、Polytone、Puzzle</li>
+            <li>新增 <b>Carpet</b> 26.3</li>
+            <li>TrueUUID 已自行移植到 26.3</li>
+          </ul>
+          <h3>更早</h3>
+          <ul>
+            <li>14.1.0 — 基于 Fabulously Optimized 14.1.0（Minecraft 26.2）</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+
+    <footer>超魔丸Busters · 仅供朋友间使用</footer>
+  </div>
+
+  <div class="toast" id="toast">已复制</div>
+
+  <script>
+    // ============================================================
+    // 页面不写死任何版本信息，全部来自 GitHub Release：
+    //   https://github.com/hxabcd/ChouMowanBusters/releases
+    // 打开页面拉一次 releases 列表（一次请求，一起喂给下面的模块），填版本
+    // 徽章、日期、体积、SHA-256、下载直链、更新日志。
+    // 拉不到（离线 / API 限流）时不猜版本：按钮指向 Releases 页面，更新日志
+    // 说明原因 —— 避免给出可能过期的直链。
+    // 徽章与更新日志的内容取自 release 说明正文，想显示 Minecraft / Fabric
+    // Loader 徽章就在正文开头写两行（没有这两行则不显示徽章）：
+    //   Minecraft: 26.4
+    //   Fabric Loader: 0.20.0
+    // ============================================================
+    const REPO = "hxabcd/ChouMowanBusters";
+    const RELEASES = `https://github.com/${REPO}/releases`;
+    const API = `https://api.github.com/repos/${REPO}/releases?per_page=10`;
+
+    const $ = id => document.getElementById(id);
+
+    const KB = 1024, MB = n => n >= KB * KB ? (n / KB / KB).toFixed(1) + " MB"
+      : (n / KB).toFixed(0) + " KB";
+
+    const dlUrl = (tag, asset) =>
+      `${RELEASES}/download/${encodeURIComponent(tag)}/${encodeURIComponent(asset)}`;
+
+    // GitHub 的 asset.digest 形如 "sha256:<hex>"，老资产可能为 null
+    const digest = a =>
+      a.digest && a.digest.startsWith("sha256:") ? a.digest.slice(7) : "";
+
+    const esc = s => s.replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+
+    // 图标一律用 OreUI 自带的像素 PNG（assets/icons），不用字体、不用 SVG
+    const ICON = {
+      dl: `<img src="assets/icons/arrowDown_white.png" alt="">`,
+      link: `<img src="assets/icons/arrowRight_white.png" alt="">`
+    };
+
+    // 读不到 release 或该包缺失：整卡降级为「去 Releases 页面」入口
+    function mute(card) {
+      card.href = RELEASES;
+      card.classList.add("mute");
+      card.querySelector(".ico").innerHTML = ICON.link;
+      card.querySelector(".size").innerHTML = ICON.link;
+    }
+
+    // 正文里 "- xxx" 聚成 <ul>，其余非空行聚成 <p>；识别 **加粗**
+    function md(text) {
+      const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+      const out = [];
+      let list = null, para = [];
+      const flushPara = () => {if (para.length) {out.push(`<p>${inline(para.join(" "))}</p>`); para = [];} };
+      const flushList = () => {if (list) {out.push(`<ul>${list.join("")}</ul>`); list = null;} };
+
+      for (const raw of text.split(/\r?\n/)) {
+        const line = raw.trim();
+        if (!line) {flushPara(); flushList(); continue;}
+        const bullet = /^[-*]\s+(.*)$/.exec(line);
+        if (bullet) {
+          flushPara();
+          (list = list || []).push(`<li>${inline(bullet[1])}</li>`);
+        } else {
+          flushList();
+          para.push(line);
+        }
+      }
+      flushPara(); flushList();
+      return out.join("");
+    }
+
+    // 正文里 "Minecraft: x" / "Fabric Loader: y" 这类行只喂徽章，不进更新日志
+    const isMeta = line => /^(?:Minecraft|Fabric Loader)\s*[:：]/i.test(line.trim());
+
+    function badge(id, label, body) {
+      const el = $(id);
+      const m = new RegExp(`^${label}\\s*[:：]\\s*(.+)$`, "im").exec(body || "");
+      if (!m) return el.hidden = true;
+      el.querySelector("b").textContent = m[1].trim();
+      el.hidden = false;
+    }
+    function renderLog(rel, target) {
+      const d = (rel.published_at || "").slice(0, 10);
+      const body = (rel.body || "").split(/\r?\n/).filter(l => !isMeta(l)).join("\n");
+      target.insertAdjacentHTML("beforeend",
+        `<h3><span class="ver">${esc(rel.tag_name)}</span><span class="date">${d}</span></h3>` +
+        md(body.trim() || "（该版本没有写说明）"));
+    }
+
+    function render(rel, rest, packs) {
+      $("v-version").textContent = rel.tag_name;
+      $("v-date").textContent = (rel.published_at || "").slice(0, 10);
+
+      const missing = [];
+      for (const k of ["lite", "standard"]) {
+        const p = packs[k];
+        const card = $("dl-" + k);
+        if (!p) {                                     // 这个包在当前 release 里没有，保持指向 Releases
+          missing.push(k);
+          mute(card);
+          continue;
+        }
+        card.href = dlUrl(rel.tag_name, p.asset);
+        $("size-" + k).textContent = MB(p.size);
+      }
+
+      const shown = Object.values(packs);
+      $("hashes").innerHTML = shown.length
+        ? shown.map(p =>
+          `<div><span class="fn">${esc(p.asset)}</span>` +
+          `<span class="sum">sha256 ${p.sha256 || "GitHub 未提供"}</span></div>`).join("")
+        : `<div>该版本没有以 Busters-&lt;版本&gt;-lite / -standard.zip 命名的附件。</div>`;
+
+      badge("b-mc", "Minecraft", rel.body);
+      badge("b-loader", "Fabric Loader", rel.body);
+
+      // 容器先清空，避免重复渲染时追加
+      $("changelog").innerHTML = "";
+      renderLog(rel, $("changelog"));
+      $("changelog-old").innerHTML = "";
+      for (const older of rest) renderLog(older, $("changelog-old"));
+
+      if (missing.length) {
+        const note = $("net-note");
+        note.innerHTML = `当前版本 ${esc(rel.tag_name)} 的 release 里没找到 ` +
+          missing.map(k => `<code>Busters-${esc(rel.tag_name)}-${k}.zip</code>`).join(" / ") +
+          `，对应的下载按钮已指向 Releases 页面。`;
+        note.hidden = false;
+      }
+    }
+
+    async function loadRelease() {
+      const r = await fetch(API, {
+        cache: "no-store",
+        headers: {Accept: "application/vnd.github+json"}
+      });
+      if (!r.ok) throw new Error("GitHub API HTTP " + r.status);
+      // 与 releases/latest 同样的语义：跳过草稿与预发布
+      const list = (await r.json()).filter(x => !x.draft && !x.prerelease);
+      const rel = list[0];
+      if (!rel) throw new Error("仓库里还没有正式 release");
+
+      const assets = rel.assets || [];
+      const packs = {};
+      for (const k of ["lite", "standard"]) {
+        const want = `busters-${rel.tag_name}-${k}.zip`.toLowerCase();
+        const a = assets.find(x => x.name.toLowerCase() === want)
+          || assets.find(x => x.name.toLowerCase().endsWith(`-${k}.zip`));
+        if (a) packs[k] = {asset: a.name, size: a.size, sha256: digest(a)};
+      }
+      if (!Object.keys(packs).length) throw new Error(`release ${rel.tag_name} 里没有 lite / standard 附件`);
+
+      render(rel, list.slice(1), packs);
+    }
+
+    loadRelease().catch(err => {
+      console.warn("读不到 GitHub Release：", err);
+      // 不知道最新版本号，就不显示可能过期的数字与直链，只留 Releases 入口
+      const at = `<a href="${RELEASES}" target="_blank" rel="noopener">Releases 页面</a>`;
+      for (const k of ["lite", "standard"]) mute($("dl-" + k));
+      $("hashes").innerHTML = `<div>未能读取 GitHub Release（离线或 API 限流）。<br>` +
+        `当前版本的校验值请到 ${at} 查看。</div>`;
+      $("changelog").innerHTML = `<p>未能读取 GitHub Release（离线或 API 限流）。` +
+        `最新版本的更新说明请到 ${at} 查看。</p>`;
+      const note = $("net-note");
+      note.innerHTML = `读不到最新版本号，上方按钮已指向 ${at}，请在那里挑最新的 Lite / Standard 下载。`;
+      note.hidden = false;
+    });
+
+    function copy(id) {
+      const t = document.getElementById(id).textContent.trim().replace(/^提取码[:：]\s*/, "");
+      const done = () => {
+        const el = document.getElementById("toast");
+        el.classList.add("on");
+        setTimeout(() => el.classList.remove("on"), 1400);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(t).then(done).catch(fallback);
+      } else fallback();
+      function fallback() {
+        const ta = document.createElement("textarea");
+        ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select();
+        try {document.execCommand("copy"); done();} catch (e) { }
+        document.body.removeChild(ta);
+      }
+    }
+
+    // ============================================================
+    // 服务器连通性测试
+    // 走 mcsrvstat.us v3（公开、CORS *、自身缓存 300s）。地址从 DOM 读，
+    // 不写死；也支持 ?server=host:port 覆盖，方便换服时先试。
+    // 三种结果：在线（显示玩家/版本/MOTD/图标）/ 离线 / 查询失败（区分网络错误与超时）。
+    // ============================================================
+    const STATUS_API = "https://api.mcsrvstat.us/3/";
+    const PING_TIMEOUT = 12000;   // 外部服务偶发慢，超时即判失败，不无限转圈
+
+    const serverAddr = () => {
+      const q = new URLSearchParams(location.search).get("server");
+      return (q || $("addr").textContent).trim();
+    };
+
+    function led(cls) {
+      $("srv-led").className = "led " + cls;
+    }
+
+    // 面板状态机：idle / busy / 结果三态
+    function srvShow(state, text) {
+      led(state);
+      $("srv-text").textContent = text;
+      if (state !== "on") {
+        $("srv-body").hidden = true;
+        $("srv-icon").hidden = true;
+      }
+    }
+    // 地址已在页面上方单独显示，状态行里不再重复
+    function renderStatus(d) {
+      const motd = (d.motd?.clean || []).join(" ").trim();
+      const ver = d.version || d.protocol?.name || "";
+      const online = d.players?.online, max = d.players?.max;
+
+      $("srv-motd").textContent = motd || "（服务器未设置 MOTD）";
+
+      const chips = [];
+      if (ver) chips.push(`<span class="chip">版本 <b>${esc(String(ver))}</b></span>`);
+      if (typeof online === "number")
+        chips.push(`<span class="chip">玩家 <b>${online}${typeof max === "number" ? " / " + max : ""}</b></span>`);
+      $("srv-meta").innerHTML = chips.join("");
+
+      // 图标是 base64 data URL，直接当 img src；没有就隐藏
+      const icon = $("srv-icon");
+      if (d.icon && d.icon.startsWith("data:image/")) {icon.src = d.icon; icon.hidden = false;}
+      else icon.hidden = true;
+
+      // 玩家名单：服主可能关了 list，那就只显示在线数（人数已在 meta chip 里）
+      const list = (d.players?.list || []).map(p => esc(p.name));
+      const box = $("srv-players");
+      box.hidden = !list.length;
+      box.innerHTML = list.length
+        ? `<span class="pl-label">在线玩家</span>` +
+        list.map(n => `<span class="pl">${n}</span>`).join("")
+        : "";
+
+      $("srv-body").hidden = false;
+      srvShow("on", `服务器在线 · 查询于 ${new Date().toLocaleTimeString("zh-CN", {hour12: false})}`);
+    }
+
+    async function ping() {
+      const addr = serverAddr();
+      if (!addr) {srvShow("unknown", "没有可测试的地址"); return;}
+
+      srvShow("busy", "正在测试 …");
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), PING_TIMEOUT);
+
+      try {
+        const r = await fetch(STATUS_API + encodeURIComponent(addr),
+          {signal: ctl.signal, cache: "no-store"});
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        const d = await r.json();
+
+        if (d.online) renderStatus(d);
+        else classifyOffline(d);
+      } catch (err) {
+        // abort 与网络错误要分开说，否则用户分不清「服挂了」还是「查询站不可用」
+        const msg = err.name === "AbortError"
+          ? "查询超时（状态服务响应慢，稍后重试）"
+          : "无法查询状态（离线或查询服务不可达）";
+        srvShow("unknown", msg + "：" + err.message);
+        console.warn("连通性测试失败：", err);
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    // mcsrvstat 返回 online:false 有两种含义，必须分开报，否则服务器没问题时
+    // 也会显示成「离线」（它单次探测失败还会把这个结果缓存 5 分钟）：
+    //   1. 真的连不上 —— ping 报 Failed to connect / DNS 查不到 IP
+    //   2. 探测本身出错 —— ping 报 Unknown problem 之类，服务器其实可能是好的
+    // 只有情况 1 才算离线；情况 2 报「探测异常」，避免误导。
+    function classifyOffline(d) {
+      const txt = (d.debug?.errors || []).map(e => `${e.type} ${e.message}`).join(" | ");
+      const cantReach = /Failed to connect|DNS lookup failed|no IP detected|Connection refused|timed out|EOF/i.test(txt);
+
+      if (cantReach) {
+        srvShow("off", "服务器离线 · 没有响应（刚重启或端口未开）");
+      } else {
+        srvShow("unknown",
+          "探测异常 · 状态服务这次没探到（服务器可能正常）" +
+          (d.debug?.cachehit ? "；该结果是缓存，稍后重试" : ""));
+      }
+    }
+  </script>
+</body>
+
+</html>
