@@ -104,20 +104,46 @@ PCL 不能自动更新整合包，所以每次更新朋友都要重下整包 —
 
 ---
 
-## 部署
+## 部署（Cloudflare Pages）
 
-只是一张静态页 + 几个本地素材 + 一次 API 请求。上传 `index.html`、`fonts/`、`assets/`
-（和 `README.md`）到任意静态托管即可，不需要上传 `dl/`：
+本仓库只存源文件，**由 Cloudflare Pages 直接从 `main` 分支构建发布**：
 
-- **GitHub Pages**（本仓库已可用）：Settings → Pages → Source 选 `main` / root，
-  访问 `https://hxabcd.github.io/ChouMowanBusters/`。
-  页面调 `api.github.com` 是跨域请求，但 GitHub API 返回 `Access-Control-Allow-Origin: *`，无需额外配置。
-- **Cloudflare Pages / Netlify / Vercel**：直接把整个目录推上去即可。
-- **R2 / OSS 等对象存储**：传 `index.html` 与 `fonts/`、`assets/`，缓存头给
-  `index.html` → `public, max-age=300`，
-  `fonts/**` 与 `assets/**` → `public, max-age=31536000, immutable`。
+1. CF Dashboard → Workers & Pages → Create → Pages → Connect to Git → 选 `hxabcd/ChouMowanBusters`
+2. 构建配置（纯静态，无需构建步骤）：
+   - **Framework preset**：`None`
+   - **Build command**：留空
+   - **Build output directory**：`/`
+3. Save and Deploy；之后每次 push 到 `main` 自动重新部署
 
-> 页面不再有需要改的 `BASE` 常量；换仓库只改 `index.html` 里的 `REPO`。
+站点根目录即仓库根目录，`index.html` 直接被当作首页，`fonts/` 与 `assets/`
+按相对路径加载，**不需要改任何配置**。
+
+### 可选：缓存头
+
+在仓库根放 `_headers`（CF Pages 支持），或在 Dashboard → Caching 里配：
+
+```
+/index.html
+  Cache-Control: public, max-age=300
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+```
+
+> 字体与图标文件名不含版本号，**升级素材时要么改文件名，要么把这条 immutable 去掉**，
+> 否则浏览器会一直用旧缓存。页面文件本身只给 300s，够短。
+
+### 其他托管
+
+同一份文件也能直接丢给 Netlify / Vercel / R2 / OSS 等：传 `index.html`、`fonts/`、`assets/`
+即可（`dl/` 不需要，它只在本地且已被 `.gitignore` 排除）。
+
+> 页面里没有需要改的 `BASE` 常量；换仓库只改 `index.html` 里的 `REPO`。
+> 跨域方面：`api.github.com` 与 `api.mcsrvstat.us` 都返回 `Access-Control-Allow-Origin: *`，
+> 无需任何代理或 CORS 配置。
 
 ### 外部服务与配额
 
