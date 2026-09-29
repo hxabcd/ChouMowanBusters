@@ -267,39 +267,93 @@
       background: var(--primary-press)
     }
 
-    /* 镜像源：主卡片仍指向 GitHub，这里给备用下载入口 */
-    .mirrors {
+    /* 镜像下载：整节「整合包」共用一个开关，开启后右侧出现端点下拉框 */
+    .mirror-bar {
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
-      gap: 5px;
-      margin: -2px 0 8px 50px;
-      font-size: 12px;
-      color: var(--neutral-40)
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      border: 2px solid var(--neutral-60);
+      background: var(--neutral-80);
+      padding: 10px 16px;
+      margin-bottom: 12px;
     }
 
-    .mirrors .mlabel {
-      color: var(--neutral-50)
+    .switch {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 6px 0;
+      cursor: pointer;
+      user-select: none;
     }
 
-    .mirrors a {
-      display: inline-block;
-      color: var(--neutral-30);
-      border: 2px solid var(--neutral-100);
+    /* 真 checkbox 只留状态与键盘焦点，视觉全在 .track 上 */
+    .switch input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    .switch .track {
+      position: relative;
+      flex: none;
+      width: 46px;
+      height: 22px;
       background: var(--neutral-70);
-      padding: 1px 7px
+      border: 2px solid var(--neutral-100);
+      box-shadow: inset 0 3px var(--neutral-90);
+      transition: background .12s linear;
     }
 
-    .mirrors a:hover {
+    .switch .knob {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 20px;
+      height: 100%;
+      background: var(--secondary);
+      box-shadow: inset -2px 0 var(--secondary-shadow);
+      transition: transform .12s linear, background .12s linear;
+    }
+
+    .switch:hover .track {
+      filter: brightness(1.15)
+    }
+
+    .switch input:checked + .track {
+      background: var(--primary);
+      box-shadow: inset 0 3px var(--primary-shadow);
+    }
+
+    .switch input:checked + .track .knob {
+      transform: translateX(22px);
+      background: var(--white)
+    }
+
+    .switch input:focus-visible + .track {
+      outline: 2px solid var(--white);
+      outline-offset: 2px;
+    }
+
+    /* 端点下拉框：外观对齐地址框（text-field），箭头复用 OreUI 图标 */
+    .mirror-bar select {
+      appearance: none;
+      font: 13px var(--font-body);
       color: var(--white);
-      border-color: var(--primary);
-      background: var(--neutral-60)
+      background: var(--neutral-80) url("assets/icons/arrowDown_white.png") no-repeat right 9px center / 10px auto;
+      border: 2px solid var(--neutral-100);
+      box-shadow: inset 0 4px var(--neutral-90);
+      padding: 7px 28px 7px 10px;
+      cursor: pointer;
     }
 
-    @media (max-width:600px) {
-      .mirrors {
-        margin-left: 0
-      }
+    /* 原生下拉弹层由系统绘制，不指定颜色在浅色主题下会变白底白字 */
+    .mirror-bar select option {
+      background: var(--neutral-90);
+      color: var(--white);
     }
 
     :focus-visible {
@@ -954,7 +1008,7 @@
       <div class="block">
         <ol>
           <li>下载 <b>PCL 启动器</b></li>
-          <li>下载 <b>「整合包」</b></li>
+          <li>下载 <b>整合包</b></li>
           <li>将整合包 <b>拖进 PCL 窗口</b> 开始安装</li>
           <li>等待安装完成，启动游戏，选择 <b>「多人游戏」</b></li>
           <li>列表中已有服务器，直接 <b>连接</b> 即可</li>
@@ -971,7 +1025,7 @@
           <div class="ico"><img src="assets/icons/ExternalLink_white.png" alt=""></div>
           <div class="meta">
             <div class="name">PCL 最新正式版 <span class="tag ext">蓝奏云</span></div>
-            <div class="desc">下载最新的 <code>PCL 正式版 x.x.x.x.zip</code>，（解压到任意目录）</div>
+            <div class="desc">下载最新的 <code>PCL 正式版 x.x.x.x.zip</code>，解压到任意目录</div>
           </div>
         </a>
 
@@ -990,6 +1044,16 @@
     <section>
       <h2><span class="n">02</span>整合包</h2>
 
+      <!-- 镜像下载：一个开关管本节所有下载卡片，开启后右侧选端点 -->
+      <div class="mirror-bar">
+        <label class="switch">
+          <input type="checkbox" id="mirror-on">
+          <span class="track"><span class="knob"></span></span>
+          <span>镜像下载</span>
+        </label>
+        <select id="mirror-site" hidden aria-label="镜像站端点"></select>
+      </div>
+
       <a class="dl feat" id="dl-lite" href="https://github.com/hxabcd/ChouMowanBusters/releases/latest">
         <div class="ico"><img src="assets/icons/arrowDown_white.png" alt=""></div>
         <div class="meta">
@@ -998,7 +1062,6 @@
         </div>
         <div class="size" id="size-lite">—</div>
       </a>
-      <div class="mirrors" id="mir-lite" hidden></div>
 
       <a class="dl" id="dl-standard" href="https://github.com/hxabcd/ChouMowanBusters/releases/latest">
         <div class="ico"><img src="assets/icons/arrowDown_white.png" alt=""></div>
@@ -1008,7 +1071,6 @@
         </div>
         <div class="size" id="size-standard">—</div>
       </a>
-      <div class="mirrors" id="mir-standard" hidden></div>
 
       <details>
         <summary>文件校验（SHA-256）</summary>
@@ -1105,17 +1167,41 @@
     // ============================================================
     // GitHub 加速镜像。GitHub 直链在部分网络下很慢，这几个是实测可用
     // （返回 206、支持 Range）的公共反代，用法就是把原始 URL 拼在域名后面。
-    // 主卡片仍直连 GitHub（真源、无需信任第三方）；镜像只作备用入口。
-    // 想增删直接改这里，页面按顺序渲染。
+    // 关掉开关时所有卡片直连 GitHub（真源、无需信任第三方）。
+    // 想增删直接改这里；gh-proxy.org 排第一，作为默认选项。
     // ============================================================
     const MIRRORS = [
+      { name: "gh-proxy.org", base: "https://gh-proxy.org/" },
       { name: "ghproxy.net", base: "https://ghproxy.net/" },
-      { name: "gh-proxy.com", base: "https://gh-proxy.com/" },
       { name: "ghfast.top", base: "https://ghfast.top/" }
     ];
 
-    // 把 GitHub 直链转成镜像链接；镜像都是「前缀 + 原始完整 URL」
+    // 镜像都是「前缀 + 原始完整 URL」
     const mirrorUrl = (base, url) => base + url;
+
+    const mirrorOn = () => $("mirror-on").checked;
+    const mirrorBase = () => MIRRORS[$("mirror-site").selectedIndex]?.base || "";
+
+    // 开关对整节「整合包」一起生效：每张卡片的 GitHub 直链存在 dataset.url 上，
+    // 这里按当前开关/端点重算 href。关掉就是原样直连，地址栏复制到的仍是真链。
+    function applyMirror() {
+      const on = mirrorOn(), base = mirrorBase();
+      for (const card of document.querySelectorAll(".dl[data-url]"))
+        card.href = on ? mirrorUrl(base, card.dataset.url) : card.dataset.url;
+    }
+
+    // 端点下拉框按 MIRRORS 顺序渲染，默认选中第一项（gh-proxy.org）
+    function initMirrorBar() {
+      const sel = $("mirror-site");
+      sel.innerHTML = MIRRORS.map(m => `<option>${esc(m.name)}</option>`).join("");
+      sel.selectedIndex = 0;
+      sel.hidden = !mirrorOn();           // 关着的时候不显示，避免误以为已在走镜像
+      $("mirror-on").addEventListener("change", () => {
+        sel.hidden = !mirrorOn();
+        applyMirror();
+      });
+      sel.addEventListener("change", applyMirror);
+    }
 
     // GitHub 的 asset.digest 形如 "sha256:<hex>"，老资产可能为 null
     const digest = a =>
@@ -1135,6 +1221,7 @@
       card.classList.add("mute");
       card.querySelector(".ico").innerHTML = ICON.link;
       card.querySelector(".size").innerHTML = ICON.link;
+      delete card.dataset.url;      // 指向 Releases 页而非文件，镜像无从拼起
     }
 
     // 正文里 "- xxx" 聚成 <ul>，其余非空行聚成 <p>；识别 **加粗**
@@ -1159,16 +1246,6 @@
       }
       flushPara(); flushList();
       return out.join("");
-    }
-
-    // 每个包下面渲染一行镜像入口：GitHub（直连）+ 各镜像
-    function renderMirrors(box, url) {
-      if (!MIRRORS.length) return box.hidden = true;
-      box.innerHTML = `<span class="mlabel">下载慢？换镜像：</span>` +
-        MIRRORS.map(m =>
-          `<a href="${esc(mirrorUrl(m.base, url))}" target="_blank" rel="noopener">${esc(m.name)}</a>`
-        ).join("");
-      box.hidden = false;
     }
 
     // 正文里 "Minecraft: x" / "Fabric Loader: y" 这类行只喂徽章，不进更新日志
@@ -1197,18 +1274,14 @@
       for (const k of ["lite", "standard"]) {
         const p = packs[k];
         const card = $("dl-" + k);
-        const mir = $("mir-" + k);
         if (!p) {                                     // 这个包在当前 release 里没有，保持指向 Releases
-          missing.push(k);
           mute(card);
-          mir.hidden = true;                          // 没有直链就没有可镜像的东西
           continue;
         }
-        const url = dlUrl(rel.tag_name, p.asset);
-        card.href = url;
+        card.dataset.url = dlUrl(rel.tag_name, p.asset);
         $("size-" + k).textContent = MB(p.size);
-        renderMirrors(mir, url);
       }
+      applyMirror();                                  // 开关/端点对全部卡片一次性生效
 
       const shown = Object.values(packs);
       $("hashes").innerHTML = shown.length
@@ -1259,20 +1332,20 @@
       render(rel, list.slice(1), packs);
     }
 
+    initMirrorBar();
+
     loadRelease().catch(err => {
       console.warn("读不到 GitHub Release：", err);
       // 不知道最新版本号，就不显示可能过期的数字与直链，只留 Releases 入口
       const at = `<a href="${RELEASES}" target="_blank" rel="noopener">Releases 页面</a>`;
-      for (const k of ["lite", "standard"]) {
-        mute($("dl-" + k));
-        $("mir-" + k).hidden = true;   // 没有直链，镜像也无从拼起
-      }
-      $("hashes").innerHTML = `<div>未能读取 GitHub Release（离线或 API 限流）。<br>` +
+      for (const k of ["lite", "standard"]) mute($("dl-" + k));
+      document.querySelector(".mirror-bar").hidden = true;   // 没有直链，镜像开关无意义
+      $("hashes").innerHTML = `<div>未能读取 GitHub Release（网络不佳或 API 限流）。<br>` +
         `当前版本的校验值请到 ${at} 查看。</div>`;
-      $("changelog").innerHTML = `<p>未能读取 GitHub Release（离线或 API 限流）。` +
+      $("changelog").innerHTML = `<p>未能读取 GitHub Release（网络不佳或 API 限流）。` +
         `最新版本的更新说明请到 ${at} 查看。</p>`;
       const note = $("net-note");
-      note.innerHTML = `读不到最新版本号，上方按钮已指向 ${at}，请在那里挑最新的 Lite / Standard 下载。`;
+      note.innerHTML = `读不到最新版本号，上方按钮已指向 ${at}，请手动下载最新整合包。`;
       note.hidden = false;
     });
 
@@ -1351,7 +1424,7 @@
         : "";
 
       $("srv-body").hidden = false;
-      srvShow("on", `服务器在线 · 查询于 ${new Date().toLocaleTimeString("zh-CN", {hour12: false})}`);
+      srvShow("on", `服务器在线 | 查询于 ${new Date().toLocaleTimeString("zh-CN", {hour12: false})}`);
     }
 
     async function ping() {
@@ -1392,11 +1465,11 @@
       const cantReach = /Failed to connect|DNS lookup failed|no IP detected|Connection refused|timed out|EOF/i.test(txt);
 
       if (cantReach) {
-        srvShow("off", "服务器离线 · 没有响应（刚重启或端口未开）");
+        srvShow("off", "服务器离线 | 没有响应（刚重启或端口未开）");
       } else {
         srvShow("unknown",
-          "探测异常 · 状态服务这次没探到（服务器可能正常）" +
-          (d.debug?.cachehit ? "；该结果是缓存，稍后重试" : ""));
+          "探测异常 | 状态服务这次没探到（服务器可能正常）" +
+          (d.debug?.cachehit ? "；该结果可能为缓存，可稍后重试" : ""));
       }
     }
   </script>
