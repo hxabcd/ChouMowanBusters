@@ -27,6 +27,11 @@ MIT License, © 2020 Spectrollay），仅作本站视觉参考与复用，未修
 > 图标**非正方形**，CSS 里一律按 `height` 定尺、`width:auto`，避免拉伸变形；
 > 同时加 `image-rendering:pixelated` 保持像素锐利。
 
+另有 `minecraft_logo.png`（300×300，调色板 PNG）：**站点图标（favicon / apple-touch-icon）**，
+取自 [minecraft.net](https://www.minecraft.net/) 官方素材
+`Homepage_Gameplay-Trailer_MC-OV-logo_300x300.png`——非 OreUI 素材、未修改内容，
+仅用于浏览器标签页与移动端主屏图标。
+
 ## 字体
 
 `fonts/` 下的 Minecraft 系字体（`Minecraft-Ten.otf`、`Minecraft-Seven.otf`）

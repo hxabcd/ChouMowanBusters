@@ -16,7 +16,7 @@ ChouMowanBusters/
 ├── index.html                  单页下载站（无依赖、无构建）
 ├── README.md
 ├── assets/
-│   ├── icons/                  OreUI 像素图标 PNG（3 个）
+│   ├── icons/                  OreUI 像素图标 PNG（3 个）+ 站点图标 minecraft_logo.png
 │   └── README.md               素材来源与授权
 ├── fonts/
 │   ├── Cubic_11.woff2          中文像素字体（SIL OFL 1.1）
