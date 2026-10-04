@@ -198,6 +198,11 @@
         color: var(--tint-green);
       }
 
+      /* h2 行内的徽章靠右（如「02 整合包」标题行的版本号） */
+      h2 .badge {
+        margin-left: auto;
+      }
+
       /* —— 主体块（oreui-main-block-frame）—— */
       .block {
         border: 2px solid;
@@ -1068,7 +1073,7 @@
       </section>
 
       <section>
-        <h2><span class="n">02</span>整合包</h2>
+        <h2><span class="n">02</span>整合包<span class="badge">版本 <b id="v-version-02">—</b></span></h2>
 
         <!-- 镜像下载：一个开关管本节所有下载卡片，开启后右侧选端点 -->
         <div class="mirror-bar">
@@ -1299,6 +1304,7 @@
 
       function render(rel, rest, packs) {
         $("v-version").textContent = rel.tag_name;
+        $("v-version-02").textContent = rel.tag_name;
         $("v-date").textContent = (rel.published_at || "").slice(0, 10);
 
         const missing = [];
